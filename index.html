@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>M.M.I.C. - Phantom Organism Incident -</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="game-container">
+    <!-- メインCanvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD (ステータス・装備・資料) -->
+    <div id="hud" class="hidden">
+      <div class="hud-top-bar">
+        <!-- 左上: プレイヤーステータス (ミダル) -->
+        <div class="hud-status-panel">
+          <div class="hud-name-row">
+            <span>MIDAL [黒のコート]</span>
+            <span id="hud-hp-val">100 / 100</span>
+          </div>
+          <div class="bar-container">
+            <div class="bar-label"><span>VITAL (生命力)</span></div>
+            <div class="bar-outer">
+              <div id="hud-hp-bar" class="bar-inner-hp"></div>
+            </div>
+          </div>
+          <div class="bar-container">
+            <div class="bar-label"><span>STAMINA (気力)</span></div>
+            <div class="bar-outer">
+              <div id="hud-stamina-bar" class="bar-inner-stamina"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 中央上: フロア名 -->
+        <div class="hud-floor-panel">
+          <div id="hud-floor">地下B3F - 生体培養区画</div>
+          <div class="hud-floor-sub">PROTECT CODE: YUME</div>
+        </div>
+
+        <!-- 右上: 装備 & アーカイブボタン -->
+        <div class="hud-equip-panel">
+          <div class="hud-weapon-card">
+            <div id="hud-weapon-name" class="hud-weapon-name">対怪異高周波直刀</div>
+            <div id="hud-weapon-ammo" class="hud-weapon-ammo">装填: ∞ (直刀)</div>
+          </div>
+          <button id="btn-open-archive" class="hud-btn" title="機密資料手帳 (J/Tab)">
+            📂 資料 (<span id="hud-doc-count">0 / 10</span>)
+          </button>
+          <button id="btn-mute" class="hud-btn" title="サウンド切替">🔊</button>
+          <button id="btn-fullscreen" class="hud-btn" title="全画面表示">⛶</button>
+        </div>
+      </div>
+
+      <!-- トースト通知 -->
+      <div id="toast" class="hidden"></div>
+
+      <!-- スマホ向けタッチコントロール -->
+      <div id="touch-controls">
+        <!-- 左側：ジョイスティックエリア -->
+        <div id="joystick-zone">
+          <div id="stick-base">
+            <div id="stick-thumb"></div>
+          </div>
+        </div>
+
+        <!-- 右側：アクションボタン群 -->
+        <div id="action-buttons">
+          <button id="btn-reload" class="touch-btn" title="リロード">
+            <span>装填</span>
+            <span class="btn-subtext">RELOAD</span>
+          </button>
+          <button id="btn-weapon" class="touch-btn" title="武器切替">
+            <span>切替</span>
+            <span class="btn-subtext">WEAPON</span>
+          </button>
+          <button id="btn-interact" class="touch-btn" title="調べる">
+            <span>調べる</span>
+            <span class="btn-subtext">ACTION</span>
+          </button>
+          <button id="btn-slash" class="touch-btn" title="直刀攻撃">
+            <span>刀</span>
+            <span class="btn-subtext">SLASH</span>
+          </button>
+          <button id="btn-fire" class="touch-btn" title="射撃">
+            <span>射撃</span>
+            <span class="btn-subtext">FIRE</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- タイトル画面 -->
+    <div id="screen-title" class="screen-overlay">
+      <div class="screen-card">
+        <h1 class="title-main">M.M.I.C.</h1>
+        <div class="title-sub">- PHANTOM ORGANISM INCIDENT -</div>
+        <div class="title-lore">
+          現代怪異・人工生体研究所「M.M.I.C.」で大規模なバイオインシデントが発生。<br>
+          都市伝説や伝承の肉体を宿した「怪異」たちが檻を破り跋扈する。<br>
+          黒いコートの青年<b>ミダル</b>は、施設で保護されていた謎の少女<b>ユメ</b>を護衛し、深淵の地下施設からの脱出を目指す――
+        </div>
+        <div class="controls-guide">
+          <b>【PC操作】</b> 移動: WASD / 矢印 | 照準: マウス | 攻撃: 左クリック/Space<br>
+          クイック直刀: 右クリック/F | 武器切替: 1, 2, 3 または Q | リロード: R | 資料: J / Tab<br>
+          <b>【スマートフォン操作】</b> 画面左側スライドで移動 | 画面右側ボタンで刀・射撃・切替
+        </div>
+        <button id="btn-start" class="btn-large">脱出作戦を開始する</button>
+      </div>
+    </div>
+
+    <!-- 単独資料ビューアモーダル -->
+    <div id="modal-doc" class="screen-overlay hidden">
+      <div class="doc-modal-content">
+        <div class="doc-modal-header">
+          <div>
+            <div class="doc-stamp">M.M.I.C. CLASSIFIED RESEARCH DATA</div>
+            <div id="doc-title" class="doc-title">タイトル</div>
+            <div id="doc-meta" class="doc-meta">メタ情報</div>
+          </div>
+        </div>
+        <div id="doc-body" class="doc-modal-body"></div>
+        <div class="doc-modal-footer">
+          <button id="btn-close-doc" class="hud-btn">記録手帳に保存して閉じる</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 資料アーカイブ手帳モーダル -->
+    <div id="modal-archive" class="screen-overlay hidden">
+      <div class="doc-modal-content">
+        <div class="doc-modal-header">
+          <div>
+            <div class="doc-stamp">COLLECTED RESEARCH ARCHIVE</div>
+            <div class="doc-title">回収済み研究資料・手帳</div>
+            <div class="doc-meta">施設内で収集した機密文書を再閲覧できます</div>
+          </div>
+        </div>
+        <div id="archive-list" class="archive-list"></div>
+        <div class="doc-modal-footer">
+          <button id="btn-close-archive" class="hud-btn">手帳を閉じる</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ゲームオーバー画面 -->
+    <div id="screen-game-over" class="screen-overlay hidden">
+      <div class="screen-card">
+        <h2 class="game-over-title">MIDAL DOWN</h2>
+        <div class="title-sub">- OPERATIVE VITAL SIGNS LOST -</div>
+        <div class="game-over-desc">
+          ミダルは力尽き、冷たい金属の床に崩れ落ちた。<br>
+          遠のく意識の中、青年は側に立つ少女に微かな声で告げた。<br><br>
+          <i>「……ユメ、逃げろ……外へ……」</i><br><br>
+          少女の無事を祈る思いを残し、彼の視界は深い闇へと沈んでいった……
+        </div>
+        <button id="btn-retry" class="btn-large">このフロアから再起する</button>
+      </div>
+    </div>
+
+    <!-- ゲームクリア画面 -->
+    <div id="screen-game-clear" class="screen-overlay hidden">
+      <div class="screen-card">
+        <h2 class="game-clear-title">MISSION COMPLETE</h2>
+        <div class="title-sub">- SURFACE EXIT ACHIEVED -</div>
+        <div class="title-lore">
+          被験体零号の咆哮が途絶え、巨大な地上隔壁が油圧音と共に開放された。<br>
+          朝の冷たい風と、眩い日の光が二人の影を照らす。<br><br>
+          <i>「ミダルさん、見て……空が、青いです……」</i><br><br>
+          少女の手をしっかりと握り締め、ミダルは怪異の研究所に背を向け歩き出した。<br>
+          過酷な悪夢の夜は、いま終わりを告げたのだ。
+        </div>
+        <button id="btn-restart" class="btn-large">タイトル画面へ戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
