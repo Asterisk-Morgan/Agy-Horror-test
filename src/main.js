@@ -56,10 +56,10 @@ class Game {
       this.restartFloor();
     });
 
-    // クリア後リスタート
+    // クリア後リスタート（タイトル画面へ戻る）
     document.getElementById("btn-restart")?.addEventListener("click", () => {
       audio.resume();
-      this.startGame();
+      this.goToTitleScreen();
     });
 
     // 資料アーカイブ開閉ボタン
@@ -118,6 +118,17 @@ class Game {
     container.style.height = `${finalH}px`;
   }
 
+  goToTitleScreen() {
+    this.state = "title";
+    audio.setPlayerHpRatio(1.0);
+    document.getElementById("screen-title")?.classList.remove("hidden");
+    document.getElementById("screen-game-over")?.classList.add("hidden");
+    document.getElementById("screen-game-clear")?.classList.add("hidden");
+    document.getElementById("modal-doc")?.classList.add("hidden");
+    document.getElementById("modal-archive")?.classList.add("hidden");
+    document.getElementById("hud")?.classList.add("hidden");
+  }
+
   startGame() {
     this.currentFloorIndex = 0;
     this.player = null; // 新規プレイヤーステート
@@ -133,6 +144,7 @@ class Game {
   }
 
   restartFloor() {
+    audio.setPlayerHpRatio(1.0);
     this.loadFloor(this.currentFloorIndex);
     this.state = "playing";
     document.getElementById("screen-game-over").classList.add("hidden");
@@ -149,17 +161,13 @@ class Game {
     const px = levelData.playerStart.x * ts;
     const py = levelData.playerStart.y * ts;
 
+    audio.setPlayerHpRatio(1.0);
+
     // プレイヤー初期化（収集資料・弾薬は保持）
     if (!this.player) {
       this.player = new Player(px, py);
     } else {
-      this.player.x = px;
-      this.player.y = py;
-      this.player.hp = this.player.maxHp;
-      this.player.stamina = this.player.maxStamina;
-      this.player.isDead = false;
-      this.player.deathTimer = 0;
-      this.player.invincibleTimer = 0;
+      this.player.resetState(px, py);
     }
 
     // ユメ初期化
@@ -209,6 +217,19 @@ class Game {
   update(dt) {
     if (this.state === "title") return;
 
+    // モーダル表示中のキー操作（Escape、Tab、J）
+    if (this.state === "archive_modal" || this.state === "document_modal") {
+      if (this.input.escapeTriggered || this.input.toggleArchiveTriggered) {
+        if (this.state === "document_modal") {
+          this.closeDocModal();
+        } else {
+          this.closeArchiveModal();
+        }
+        this.input.postUpdate();
+        return;
+      }
+    }
+
     if (this.state === "playing") {
       this.updatePlaying(dt);
     } else if (this.state === "game_over") {
@@ -246,12 +267,9 @@ class Game {
       this.openArchiveModal();
     }
 
-    // 攻撃処理（クリック、スペース、タッチ射撃）
+    // 攻撃処理（クリック、スペース、タッチ射撃、クイック直刀）
     if (input.slashTriggered) {
-      const prevWIndex = this.player.currentWeaponIndex;
-      this.player.currentWeaponIndex = 0; // 直刀
-      this.player.attack(this.bullets, this.slashes, this.enemies);
-      this.player.currentWeaponIndex = prevWIndex;
+      this.player.quickSlash(this.slashes, this.enemies);
     } else if (input.attackTriggered || (input.isAttacking && this.player.currentWeapon.type === "smg")) {
       this.player.attack(this.bullets, this.slashes, this.enemies);
     }
@@ -340,7 +358,7 @@ class Game {
       item.update(dt);
 
       const dist = Math.hypot(this.player.x - item.x, this.player.y - item.y);
-      if (dist <= this.player.radius + item.radius) {
+      if (dist <= this.player.radius + item.radius + 8) {
         // アイテム取得
         if (item.type === "document") {
           this.collectDocument(item.payload);
@@ -381,19 +399,22 @@ class Game {
     const doorY = exitDoor.y * ts + ts / 2;
     const distToDoor = Math.hypot(this.player.x - doorX, this.player.y - doorY);
 
-    if (distToDoor < ts * 0.95) {
+    if (distToDoor < ts * 1.1) {
       if (!this.tileMap.doorUnlocked) {
         if (input.interactTriggered) {
           this.showToast("【施錠中】セキュリティキーまたは封鎖解除が必要です");
           audio.playClickSound(audio.ctx?.currentTime || 0, 300, 0.1);
         }
       } else {
-        if (exitDoor.targetFloor === 999) {
-          this.triggerGameClear();
-        } else {
-          audio.playDoorOpen();
-          this.loadFloor(exitDoor.targetFloor);
-          this.showToast(`階層移動：${LEVELS[this.currentFloorIndex].name} へ到達`);
+        // 解錠済み：ドアに接触（侵入）したら次フロアへ進む
+        if (distToDoor < ts * 0.75 || input.interactTriggered) {
+          if (exitDoor.targetFloor === 999) {
+            this.triggerGameClear();
+          } else {
+            audio.playDoorOpen();
+            this.loadFloor(exitDoor.targetFloor);
+            this.showToast(`階層移動：${LEVELS[this.currentFloorIndex].name} へ到達`);
+          }
         }
       }
     }

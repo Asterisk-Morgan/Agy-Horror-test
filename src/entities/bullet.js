@@ -25,18 +25,27 @@ export class Bullet {
 
     const dx = this.vx * dt;
     const dy = this.vy * dt;
-    const nextX = this.x + dx;
-    const nextY = this.y + dy;
+    const totalDist = Math.hypot(dx, dy);
+    const steps = Math.max(1, Math.ceil(totalDist / 16));
+    const stepDx = dx / steps;
+    const stepDy = dy / steps;
 
-    // 壁との衝突判定
-    if (tileMap && tileMap.isSolid(nextX, nextY)) {
-      this.alive = false;
-      return;
+    for (let s = 1; s <= steps; s++) {
+      const curX = this.x + stepDx * s;
+      const curY = this.y + stepDy * s;
+
+      // 壁との衝突判定
+      if (tileMap && tileMap.isSolid(curX, curY, this.radius)) {
+        this.x = curX;
+        this.y = curY;
+        this.alive = false;
+        return;
+      }
     }
 
-    this.x = nextX;
-    this.y = nextY;
-    this.distanceTraveled += Math.hypot(dx, dy);
+    this.x += dx;
+    this.y += dy;
+    this.distanceTraveled += totalDist;
 
     if (this.distanceTraveled >= this.range) {
       this.alive = false;

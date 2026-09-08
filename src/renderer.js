@@ -62,6 +62,9 @@ export class Renderer {
   }
 
   addBloodSpatter(x, y, count = 10, color = "#b71c1c") {
+    if (this.particles.length > 150) {
+      this.particles.splice(0, this.particles.length - 120);
+    }
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 140 + 40;
@@ -77,6 +80,9 @@ export class Renderer {
   }
 
   addSparks(x, y, count = 6) {
+    if (this.particles.length > 150) {
+      this.particles.splice(0, this.particles.length - 120);
+    }
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 200 + 60;
@@ -210,8 +216,11 @@ export class Renderer {
     // 光源を destination-out（暗闇をくり抜く）で描画
     lctx.globalCompositeOperation = "destination-out";
 
-    const screenPx = player.x - this.camera.x;
-    const screenPy = player.y - this.camera.y;
+    const camX = Math.floor(this.camera.x);
+    const camY = Math.floor(this.camera.y);
+
+    const screenPx = player.x - camX;
+    const screenPy = player.y - camY;
 
     // A. ミダルの懐中電灯（扇状ビーム）
     const flashDist = 320 * this.flickerIntensity;
@@ -239,8 +248,8 @@ export class Renderer {
     lctx.fill();
 
     // C. ユメの生体共鳴オーラ（足元の柔らかな光）
-    const screenYx = yume.x - this.camera.x;
-    const screenYy = yume.y - this.camera.y;
+    const screenYx = yume.x - camX;
+    const screenYy = yume.y - camY;
     const yumeGrad = lctx.createRadialGradient(screenYx, screenYy, 5, screenYx, screenYy, 100);
     yumeGrad.addColorStop(0, "rgba(0,0,0,0.75)");
     yumeGrad.addColorStop(1, "rgba(0,0,0,0)");
@@ -252,8 +261,8 @@ export class Renderer {
     // D. 重要アイテム（資料など）の微かな光
     for (const item of items) {
       if (!item.alive) continue;
-      const ix = item.x - this.camera.x;
-      const iy = item.y - this.camera.y;
+      const ix = item.x - camX;
+      const iy = item.y - camY;
       const itemGrad = lctx.createRadialGradient(ix, iy, 2, ix, iy, 40);
       itemGrad.addColorStop(0, "rgba(0,0,0,0.6)");
       itemGrad.addColorStop(1, "rgba(0,0,0,0)");

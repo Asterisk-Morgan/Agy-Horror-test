@@ -51,15 +51,19 @@ export class Player {
   }
 
   switchWeapon(index) {
-    if (this.isDead || this.isReloading) return;
-    if (index >= 0 && index < this.weapons.length) {
+    if (this.isDead) return;
+    if (index >= 0 && index < this.weapons.length && index !== this.currentWeaponIndex) {
+      this.isReloading = false;
+      this.reloadTimer = 0;
       this.currentWeaponIndex = index;
       audio.playClickSound(audio.ctx ? audio.ctx.currentTime : 0, 700, 0.05);
     }
   }
 
   cycleWeapon() {
-    if (this.isDead || this.isReloading) return;
+    if (this.isDead) return;
+    this.isReloading = false;
+    this.reloadTimer = 0;
     this.currentWeaponIndex = (this.currentWeaponIndex + 1) % this.weapons.length;
     audio.playClickSound(audio.ctx ? audio.ctx.currentTime : 0, 700, 0.05);
   }
@@ -113,46 +117,78 @@ export class Player {
     }
   }
 
+  resetState(x, y) {
+    this.x = x;
+    this.y = y;
+    this.hp = this.maxHp;
+    this.stamina = this.maxStamina;
+    this.isDead = false;
+    this.deathTimer = 0;
+    this.invincibleTimer = 0;
+    this.attackCooldown = 0;
+    this.isReloading = false;
+    this.reloadTimer = 0;
+    this.slashAnimTimer = 0;
+    this.muzzleFlashTimer = 0;
+  }
+
+  // 直刀斬撃の実行（直刀攻撃・クイック直刀共通）
+  executeKatanaSlash(slashOut, enemies) {
+    const w = CONFIG.WEAPONS.KATANA;
+    if (this.stamina < w.staminaCost) return false;
+    this.stamina -= w.staminaCost;
+    this.attackCooldown = w.cooldown;
+    this.slashAnimTimer = 0.22;
+    audio.playKatanaSwing();
+
+    slashOut.push(new SlashArc(this.x, this.y, this.angle, w.arc, w.range));
+
+    // 扇状範囲内の敵への判定
+    let hitAny = false;
+    for (const enemy of enemies) {
+      if (!enemy.alive) continue;
+      const dx = enemy.x - this.x;
+      const dy = enemy.y - this.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist <= w.range + enemy.radius) {
+        const enemyAngle = Math.atan2(dy, dx);
+        let diffAngle = enemyAngle - this.angle;
+        while (diffAngle < -Math.PI) diffAngle += Math.PI * 2;
+        while (diffAngle > Math.PI) diffAngle -= Math.PI * 2;
+
+        if (Math.abs(diffAngle) <= w.arc / 2) {
+          const kx = Math.cos(this.angle);
+          const ky = Math.sin(this.angle);
+          enemy.takeDamage(w.damage, kx, ky, w.knockback);
+          hitAny = true;
+        }
+      }
+    }
+    if (hitAny) {
+      audio.playKatanaHit();
+    }
+    return true;
+  }
+
+  // クイック直刀（右クリック / Fキー / 【刀】ボタン）
+  // 銃装備中やリロード中であっても緊急直刀攻撃が可能
+  quickSlash(slashOut, enemies) {
+    if (this.isDead || this.attackCooldown > 0) return false;
+    // リロード中に刀を振る場合はリロードを中断
+    if (this.isReloading) {
+      this.isReloading = false;
+      this.reloadTimer = 0;
+    }
+    return this.executeKatanaSlash(slashOut, enemies);
+  }
+
   attack(bulletsOut, slashOut, enemies) {
     if (this.isDead || this.attackCooldown > 0 || this.isReloading) return false;
     const w = this.currentWeapon;
 
     if (w.type === "melee") {
-      // 直刀攻撃
-      if (this.stamina < w.staminaCost) return false;
-      this.stamina -= w.staminaCost;
-      this.attackCooldown = w.cooldown;
-      this.slashAnimTimer = 0.22;
-      audio.playKatanaSwing();
-
-      slashOut.push(new SlashArc(this.x, this.y, this.angle, w.arc, w.range));
-
-      // 扇状範囲内の敵への判定
-      let hitAny = false;
-      for (const enemy of enemies) {
-        if (!enemy.alive) continue;
-        const dx = enemy.x - this.x;
-        const dy = enemy.y - this.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist <= w.range + enemy.radius) {
-          const enemyAngle = Math.atan2(dy, dx);
-          let diffAngle = enemyAngle - this.angle;
-          while (diffAngle < -Math.PI) diffAngle += Math.PI * 2;
-          while (diffAngle > Math.PI) diffAngle -= Math.PI * 2;
-
-          if (Math.abs(diffAngle) <= w.arc / 2) {
-            const kx = Math.cos(this.angle);
-            const ky = Math.sin(this.angle);
-            enemy.takeDamage(w.damage, kx, ky, w.knockback);
-            hitAny = true;
-          }
-        }
-      }
-      if (hitAny) {
-        audio.playKatanaHit();
-      }
-      return true;
+      return this.executeKatanaSlash(slashOut, enemies);
     } else {
       // 遠距離武器（XDM-40 / MP7A1）
       const ammoData = w.id === "XDM_40" ? this.ammo.XDM : this.ammo.MP7;
@@ -319,8 +355,8 @@ export class Player {
 
     // 武器ごとの腕と武器グラフィック
     const w = this.currentWeapon;
-    if (w.id === "KATANA") {
-      // 直刀：右手に刀を構える
+    if (this.slashAnimTimer > 0 || w.id === "KATANA") {
+      // 直刀：右手に刀を構える / 斬撃モーション
       ctx.fillStyle = "#1c2024";
       ctx.beginPath();
       ctx.arc(8, 8, 4, 0, Math.PI * 2); // 右腕

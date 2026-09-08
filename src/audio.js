@@ -100,7 +100,7 @@ class AudioManager {
   }
 
   startHeartbeatLoop() {
-    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+    if (this.heartbeatTimer) clearTimeout(this.heartbeatTimer);
     const tick = () => {
       if (this.ctx && this.playerHpRatio < 0.65 && !this.isMuted) {
         this.playHeartbeatSound();
@@ -110,6 +110,13 @@ class AudioManager {
       this.heartbeatTimer = setTimeout(tick, interval);
     };
     this.heartbeatTimer = setTimeout(tick, 1000);
+  }
+
+  stopHeartbeat() {
+    if (this.heartbeatTimer) {
+      clearTimeout(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
   }
 
   playHeartbeatSound() {

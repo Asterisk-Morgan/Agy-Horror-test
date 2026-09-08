@@ -24,6 +24,7 @@ export class InputManager {
     this.switchWeaponIndex = -1;
     this.cycleWeaponTriggered = false;
     this.toggleArchiveTriggered = false;
+    this.escapeTriggered = false;
 
     // キーボード状態
     this.keys = {};
@@ -62,6 +63,10 @@ export class InputManager {
         e.preventDefault();
         this.toggleArchiveTriggered = true;
       }
+      if (e.code === "Escape") {
+        e.preventDefault();
+        this.escapeTriggered = true;
+      }
       if (e.code === "KeyF") this.slashTriggered = true;
       if (e.code === "Space") {
         e.preventDefault();
@@ -89,6 +94,14 @@ export class InputManager {
     });
 
     this.canvas.addEventListener("mousedown", (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      this.mouseX = (e.clientX - rect.left) * scaleX;
+      this.mouseY = (e.clientY - rect.top) * scaleY;
+      this.hasMouse = true;
+      this.aimActive = true;
+
       if (e.button === 0) { // 左クリック（主武器）
         this.attackTriggered = true;
         this.isAttacking = true;
@@ -179,18 +192,26 @@ export class InputManager {
 
     const fireBtn = document.getElementById("btn-fire");
     if (fireBtn) {
-      fireBtn.addEventListener("touchstart", (e) => {
+      const startFire = (e) => {
         e.preventDefault();
         this.attackTriggered = true;
         this.isAttacking = true;
-      }, { passive: false });
-
+      };
       const stopFire = (e) => {
         e.preventDefault();
         this.isAttacking = false;
       };
+
+      fireBtn.addEventListener("touchstart", startFire, { passive: false });
       fireBtn.addEventListener("touchend", stopFire);
       fireBtn.addEventListener("touchcancel", stopFire);
+
+      fireBtn.addEventListener("mousedown", startFire);
+      window.addEventListener("mouseup", () => {
+        if (this.isAttacking && !this.keys["Space"]) {
+          this.isAttacking = false;
+        }
+      });
     }
 
     this.bindTouchButton("btn-weapon", () => {
@@ -239,9 +260,13 @@ export class InputManager {
       if (dist > 6) {
         this.moveAngle = Math.atan2(dy, dx);
         this.moveLength = Math.min(1, dist / this.touchJoystick.radius);
+        this.moveX = Math.cos(this.moveAngle) * this.moveLength;
+        this.moveY = Math.sin(this.moveAngle) * this.moveLength;
         this.aimAngle = this.moveAngle; // タッチ移動時は進行方向を向く
         this.aimActive = true;
       } else {
+        this.moveX = 0;
+        this.moveY = 0;
         this.moveLength = 0;
       }
     } else {
@@ -252,6 +277,8 @@ export class InputManager {
         this.moveAngle = Math.atan2(this.moveY, this.moveX);
         this.moveLength = 1;
       } else {
+        this.moveX = 0;
+        this.moveY = 0;
         this.moveLength = 0;
       }
 
@@ -273,6 +300,7 @@ export class InputManager {
     this.interactTriggered = false;
     this.cycleWeaponTriggered = false;
     this.toggleArchiveTriggered = false;
+    this.escapeTriggered = false;
     this.switchWeaponIndex = -1;
   }
 }

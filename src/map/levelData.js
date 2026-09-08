@@ -8,9 +8,9 @@ export const LEVELS = [
     subName: "Bio-Cultivation Sector",
     bgmTone: "deep",
     ambientLight: "rgba(10, 20, 26, 0.94)",
-    playerStart: { x: 3, y: 7 },
-    yumeStart: { x: 2.2, y: 7 },
-    exitDoor: { x: 21, y: 3, targetFloor: 1, requiresKey: false, label: "B2F連絡通路" },
+    playerStart: { x: 3.5, y: 7.5 },
+    yumeStart: { x: 2.5, y: 7.5 },
+    exitDoor: { x: 22, y: 3, targetFloor: 1, requiresKey: false, label: "B2F連絡通路" },
     gridWidth: 24,
     gridHeight: 14,
     grid: [
@@ -33,15 +33,15 @@ export const LEVELS = [
       { x: 4.5, y: 2.5, type: "document", payload: "doc_01" },
       { x: 12.5, y: 2.5, type: "document", payload: "doc_02" },
       { x: 12.5, y: 11.5, type: "document", payload: "doc_03" },
-      { x: 5, y: 11, type: "ammo_xdm" },
-      { x: 18, y: 11, type: "ammo_mp7" },
-      { x: 18, y: 2, type: "medkit" }
+      { x: 5.5, y: 11.5, type: "ammo_xdm" },
+      { x: 21.5, y: 11.5, type: "ammo_mp7" },
+      { x: 21.5, y: 2.5, type: "medkit" }
     ],
     enemies: [
-      { x: 10, y: 7, type: "CHIMERA" },
-      { x: 15, y: 7, type: "HACHISHAKU" },
-      { x: 19, y: 4, type: "CHIMERA" },
-      { x: 19, y: 10, type: "HACHISHAKU" }
+      { x: 10.5, y: 7.5, type: "CHIMERA" },
+      { x: 15.5, y: 7.5, type: "HACHISHAKU" },
+      { x: 19.5, y: 4.5, type: "CHIMERA" },
+      { x: 21.5, y: 10.5, type: "HACHISHAKU" }
     ]
   },
 
@@ -52,9 +52,9 @@ export const LEVELS = [
     subName: "Cryptid Containment & Archive",
     bgmTone: "metal",
     ambientLight: "rgba(18, 14, 24, 0.95)",
-    playerStart: { x: 2, y: 2 },
-    yumeStart: { x: 1.5, y: 2 },
-    exitDoor: { x: 22, y: 12, targetFloor: 2, requiresKey: true, keyId: "key_b2", label: "B1F中央エレベーター" },
+    playerStart: { x: 2.5, y: 2.5 },
+    yumeStart: { x: 1.8, y: 2.5 },
+    exitDoor: { x: 23, y: 12, targetFloor: 2, requiresKey: true, keyId: "key_b2", label: "B1F中央エレベーター" },
     gridWidth: 25,
     gridHeight: 15,
     grid: [
@@ -75,22 +75,22 @@ export const LEVELS = [
       "1111111111111111111111111"
     ],
     items: [
-      { x: 3, y: 6, type: "document", payload: "doc_04" },
-      { x: 11, y: 2, type: "document", payload: "doc_05" },
-      { x: 11, y: 10, type: "document", payload: "doc_06" },
-      { x: 3, y: 13, type: "keycard", payload: "key_b2" }, // 隔離室奥にあるセキュリティキー
-      { x: 19, y: 2, type: "ammo_mp7" },
-      { x: 19, y: 6, type: "ammo_xdm" },
-      { x: 3, y: 10, type: "medkit" },
-      { x: 19, y: 10, type: "medkit" }
+      { x: 3.5, y: 6.5, type: "document", payload: "doc_04" },
+      { x: 11.5, y: 2.5, type: "document", payload: "doc_05" },
+      { x: 11.5, y: 10.5, type: "document", payload: "doc_06" },
+      { x: 3.5, y: 13.5, type: "keycard", payload: "key_b2" }, // 隔離室奥にあるセキュリティキー
+      { x: 19.5, y: 2.5, type: "ammo_mp7" },
+      { x: 19.5, y: 6.5, type: "ammo_xdm" },
+      { x: 3.5, y: 10.5, type: "medkit" },
+      { x: 19.5, y: 10.5, type: "medkit" }
     ],
     enemies: [
-      { x: 7, y: 3, type: "SLICER" },
-      { x: 13, y: 7, type: "HACHISHAKU" },
-      { x: 15, y: 3, type: "CHIMERA" },
-      { x: 7, y: 11, type: "SLICER" },
-      { x: 15, y: 11, type: "CHIMERA" },
-      { x: 21, y: 7, type: "HACHISHAKU" }
+      { x: 7.5, y: 3.5, type: "SLICER" },
+      { x: 13.5, y: 7.5, type: "HACHISHAKU" },
+      { x: 15.5, y: 3.5, type: "CHIMERA" },
+      { x: 7.5, y: 11.5, type: "SLICER" },
+      { x: 15.5, y: 11.5, type: "CHIMERA" },
+      { x: 21.5, y: 7.5, type: "HACHISHAKU" }
     ]
   },
 
@@ -101,9 +101,9 @@ export const LEVELS = [
     subName: "Central Core & Project EVE",
     bgmTone: "pulse",
     ambientLight: "rgba(22, 10, 15, 0.94)",
-    playerStart: { x: 2, y: 7 },
-    yumeStart: { x: 1.5, y: 7 },
-    exitDoor: { x: 22, y: 7, targetFloor: 3, requiresKey: false, label: "地上エントランス直通階段" },
+    playerStart: { x: 2.5, y: 7.5 },
+    yumeStart: { x: 1.8, y: 7.5 },
+    exitDoor: { x: 23, y: 7, targetFloor: 3, requiresKey: false, label: "地上エントランス直通階段" },
     gridWidth: 25,
     gridHeight: 15,
     grid: [
@@ -124,21 +124,21 @@ export const LEVELS = [
       "1111111111111111111111111"
     ],
     items: [
-      { x: 5, y: 3, type: "document", payload: "doc_07" },
-      { x: 19, y: 3, type: "document", payload: "doc_08" },
-      { x: 12, y: 7, type: "document", payload: "doc_09" },
-      { x: 5, y: 12, type: "ammo_mp7" },
-      { x: 19, y: 12, type: "ammo_xdm" },
-      { x: 12, y: 2, type: "medkit" },
-      { x: 12, y: 12, type: "medkit" }
+      { x: 5.5, y: 4.5, type: "document", payload: "doc_07" },
+      { x: 19.5, y: 4.5, type: "document", payload: "doc_08" },
+      { x: 12.5, y: 7.5, type: "document", payload: "doc_09" },
+      { x: 5.5, y: 10.5, type: "ammo_mp7" },
+      { x: 19.5, y: 10.5, type: "ammo_xdm" },
+      { x: 12.5, y: 2.5, type: "medkit" },
+      { x: 12.5, y: 12.5, type: "medkit" }
     ],
     enemies: [
-      { x: 8, y: 7, type: "SPORE" },
-      { x: 16, y: 7, type: "SPORE" },
-      { x: 6, y: 3, type: "SLICER" },
-      { x: 18, y: 3, type: "CHIMERA" },
-      { x: 6, y: 11, type: "SLICER" },
-      { x: 18, y: 11, type: "HACHISHAKU" }
+      { x: 8.5, y: 7.5, type: "SPORE" },
+      { x: 16.5, y: 7.5, type: "SPORE" },
+      { x: 7.5, y: 4.5, type: "SLICER" },
+      { x: 17.5, y: 4.5, type: "CHIMERA" },
+      { x: 7.5, y: 10.5, type: "SLICER" },
+      { x: 17.5, y: 10.5, type: "HACHISHAKU" }
     ]
   },
 
@@ -149,9 +149,9 @@ export const LEVELS = [
     subName: "Surface Exit Gate",
     bgmTone: "boss",
     ambientLight: "rgba(15, 20, 30, 0.92)",
-    playerStart: { x: 3, y: 7 },
-    yumeStart: { x: 2, y: 7 },
-    exitDoor: { x: 22, y: 7, targetFloor: 999, requiresKey: true, keyId: "boss_defeat", label: "地上脱出シャッター" },
+    playerStart: { x: 3.5, y: 7.5 },
+    yumeStart: { x: 2.5, y: 7.5 },
+    exitDoor: { x: 23, y: 7, targetFloor: 999, requiresKey: true, keyId: "boss_defeat", label: "地上脱出シャッター" },
     gridWidth: 25,
     gridHeight: 15,
     grid: [
@@ -172,14 +172,14 @@ export const LEVELS = [
       "1111111111111111111111111"
     ],
     items: [
-      { x: 5, y: 7, type: "document", payload: "doc_10" },
-      { x: 4, y: 3, type: "ammo_mp7" },
-      { x: 4, y: 11, type: "ammo_xdm" },
-      { x: 6, y: 3, type: "medkit" },
-      { x: 6, y: 11, type: "medkit" }
+      { x: 5.5, y: 7.5, type: "document", payload: "doc_10" },
+      { x: 4.5, y: 3.5, type: "ammo_mp7" },
+      { x: 4.5, y: 11.5, type: "ammo_xdm" },
+      { x: 6.5, y: 3.5, type: "medkit" },
+      { x: 6.5, y: 11.5, type: "medkit" }
     ],
     enemies: [
-      { x: 16, y: 7, type: "BOSS" }
+      { x: 16.5, y: 7.5, type: "BOSS" }
     ]
   }
 ];

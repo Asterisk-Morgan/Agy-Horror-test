@@ -44,8 +44,8 @@ export class TileMap {
         if (tile === "1" || tile === "3") {
           return true;
         }
-        // 2: ドア (ロックされている時は通行不可)
-        if (tile === "2" && !this.doorOpen) {
+        // 2: ドア (解錠されていない時は通行不可)
+        if (tile === "2" && !this.doorUnlocked) {
           return true;
         }
       }
@@ -65,7 +65,7 @@ export class TileMap {
       const gy = Math.floor(checkY / this.tileSize);
       const tile = this.getTile(gx, gy);
       if (tile === "1" || tile === "3") return true;
-      if (tile === "2" && !this.doorOpen) return true;
+      if (tile === "2" && !this.doorUnlocked) return true;
     }
     return false;
   }
@@ -167,32 +167,54 @@ export class TileMap {
   }
 
   renderDoor(ctx, px, py) {
-    ctx.fillStyle = "#111720";
-    ctx.fillRect(px, py, this.tileSize, this.tileSize);
-
     const isUnlocked = this.doorUnlocked;
     const indicatorColor = isUnlocked ? "#00e676" : "#ff1744";
 
-    // ドアパネル
-    ctx.fillStyle = "#263238";
-    ctx.fillRect(px + 4, py + 2, this.tileSize - 8, this.tileSize - 4);
+    // ドア枠ベース
+    ctx.fillStyle = "#0c1017";
+    ctx.fillRect(px, py, this.tileSize, this.tileSize);
 
-    // 中央スリット
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(px + this.tileSize / 2, py + 2);
-    ctx.lineTo(px + this.tileSize / 2, py + this.tileSize - 2);
-    ctx.stroke();
+    if (isUnlocked) {
+      // 開放状態：奥への通路が見える
+      ctx.fillStyle = "#04080e";
+      ctx.fillRect(px + 4, py + 2, this.tileSize - 8, this.tileSize - 4);
 
-    // セキュリティランプ
-    ctx.fillStyle = indicatorColor;
-    ctx.beginPath();
-    ctx.arc(px + this.tileSize / 2, py + 10, 4, 0, Math.PI * 2);
-    ctx.fill();
+      // 左右に引き込まれたスライドパネル
+      ctx.fillStyle = "#1e2833";
+      ctx.fillRect(px + 2, py + 2, 4, this.tileSize - 4);
+      ctx.fillRect(px + this.tileSize - 6, py + 2, 4, this.tileSize - 4);
 
-    // 警告ストライプ
-    ctx.fillStyle = isUnlocked ? "#00c853" : "#d50000";
-    ctx.fillRect(px + 8, py + this.tileSize - 10, this.tileSize - 16, 4);
+      // 緑の誘導ライト（床の誘導ライン）
+      ctx.fillStyle = "rgba(0, 230, 118, 0.4)";
+      ctx.fillRect(px + 8, py + this.tileSize / 2 - 2, this.tileSize - 16, 4);
+
+      // 上部セキュリティランプ（緑発光）
+      ctx.fillStyle = indicatorColor;
+      ctx.beginPath();
+      ctx.arc(px + this.tileSize / 2, py + 8, 4, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // 閉鎖・施錠状態：重厚な装甲パネル
+      ctx.fillStyle = "#263238";
+      ctx.fillRect(px + 4, py + 2, this.tileSize - 8, this.tileSize - 4);
+
+      // 中央スリット
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px + this.tileSize / 2, py + 2);
+      ctx.lineTo(px + this.tileSize / 2, py + this.tileSize - 2);
+      ctx.stroke();
+
+      // セキュリティランプ（赤）
+      ctx.fillStyle = indicatorColor;
+      ctx.beginPath();
+      ctx.arc(px + this.tileSize / 2, py + 10, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 警告ストライプ
+      ctx.fillStyle = "#d50000";
+      ctx.fillRect(px + 8, py + this.tileSize - 10, this.tileSize - 16, 4);
+    }
   }
 }

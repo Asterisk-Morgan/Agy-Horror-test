@@ -267,10 +267,10 @@ html, body {
 /* 右画面：バーチャルアクションボタン群 */
 #action-buttons {
   position: absolute;
-  bottom: 18px;
-  right: 18px;
-  width: 200px;
-  height: 200px;
+  bottom: 16px;
+  right: 16px;
+  width: 220px;
+  height: 220px;
   pointer-events: none;
 }
 
@@ -299,8 +299,8 @@ html, body {
 #btn-slash {
   width: 68px;
   height: 68px;
-  bottom: 10px;
-  right: 76px;
+  bottom: 12px;
+  right: 86px;
   background: rgba(0, 180, 216, 0.35);
   border-color: var(--accent-cyan);
   color: #ffffff;
@@ -311,8 +311,8 @@ html, body {
 #btn-fire {
   width: 76px;
   height: 76px;
-  bottom: 74px;
-  right: 8px;
+  bottom: 76px;
+  right: 12px;
   background: rgba(255, 42, 68, 0.38);
   border-color: var(--accent-red);
   color: #ffffff;
@@ -323,8 +323,8 @@ html, body {
 #btn-weapon {
   width: 52px;
   height: 52px;
-  bottom: 90px;
-  right: 102px;
+  bottom: 94px;
+  right: 112px;
   background: rgba(255, 170, 0, 0.35);
   border-color: var(--accent-amber);
   color: #ffffff;
@@ -333,10 +333,10 @@ html, body {
 
 /* 調べる/決定ボタン */
 #btn-interact {
-  width: 52px;
-  height: 52px;
-  bottom: 18px;
-  right: 8px;
+  width: 54px;
+  height: 54px;
+  bottom: 12px;
+  right: 14px;
   background: rgba(0, 230, 118, 0.35);
   border-color: var(--accent-green);
   color: #ffffff;
@@ -345,10 +345,10 @@ html, body {
 
 /* リロードボタン */
 #btn-reload {
-  width: 48px;
-  height: 48px;
-  bottom: 154px;
-  right: 36px;
+  width: 50px;
+  height: 50px;
+  bottom: 160px;
+  right: 32px;
   background: rgba(70, 90, 120, 0.45);
   border-color: #8295a8;
   color: #ffffff;

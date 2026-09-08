@@ -183,7 +183,8 @@ export class Enemy {
       } else {
         this.x = nextX;
         this.y = nextY;
-        if (dist <= this.attackRange && this.attackCooldownTimer <= 0) {
+        const currentDist = Math.hypot(player.x - this.x, player.y - this.y);
+        if (currentDist <= this.attackRange + player.radius && this.attackCooldownTimer <= 0) {
           player.takeDamage(this.damage);
           this.attackCooldownTimer = this.attackCooldown;
           this.isCharging = false;
@@ -240,17 +241,15 @@ export class Enemy {
     }
 
     if (this.attackCooldownTimer <= 0) {
-      const mode = Math.random();
-      if (mode < 0.5) {
-        // 扇状酸性弾乱射
+      const currentDist = Math.hypot(player.x - this.x, player.y - this.y);
+      if (currentDist <= this.attackRange * 1.5) {
+        // 至近距離：薙ぎ払い攻撃
+        player.takeDamage(this.damage);
+      } else {
+        // 中・長距離：扇状酸性弾乱射
         for (let i = -2; i <= 2; i++) {
           const shootAngle = angle + i * 0.18;
           bulletsOut.push(new Bullet(this.x, this.y, shootAngle, 340, this.damage * 0.8, 80, 420, false, "#ff1744"));
-        }
-      } else {
-        // 接近薙ぎ払い
-        if (dist <= this.attackRange * 1.5) {
-          player.takeDamage(this.damage);
         }
       }
       this.attackCooldownTimer = this.attackCooldown;

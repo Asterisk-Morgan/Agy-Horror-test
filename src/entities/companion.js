@@ -60,22 +60,52 @@ export class Companion {
       this.shoutCooldown = 6.0;
     }
 
+    // プレイヤー死亡時の挙動（ユメへの危害は描写せず、駆け寄って案じる）
+    if (player.isDead) {
+      this.angle = Math.atan2(player.y - this.y, player.x - this.x);
+      this.isHiding = true;
+      if (this.dialogueTimer <= 0 && this.dialogueText === "") {
+        this.say("ミダルさん……！？ そんな、目を開けてください……！", 5.0);
+      }
+      return;
+    }
+
     // プレイヤーへの追従ロジック
     const distToPlayer = Math.hypot(player.x - this.x, player.y - this.y);
     const angleToPlayer = Math.atan2(player.y - this.y, player.x - this.x);
     this.angle = angleToPlayer;
 
+    // 長距離スタック救済：壁の角などで450px以上離れてしまった場合、プレイヤーの周囲にワープ
+    if (distToPlayer > 450) {
+      for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 4) {
+        const testX = player.x + Math.cos(angle) * 40;
+        const testY = player.y + Math.sin(angle) * 40;
+        if (!tileMap.isSolid(testX, testY, this.radius)) {
+          this.x = testX;
+          this.y = testY;
+          break;
+        }
+      }
+      return;
+    }
+
     // ミダルの背後（ミダルの向きの逆側）を目標位置にする
-    const targetOffsetX = -Math.cos(player.angle) * CONFIG.YUME.FOLLOW_DIST_MIN;
-    const targetOffsetY = -Math.sin(player.angle) * CONFIG.YUME.FOLLOW_DIST_MIN;
-    const targetX = player.x + targetOffsetX;
-    const targetY = player.y + targetOffsetY;
+    let targetOffsetX = -Math.cos(player.angle) * CONFIG.YUME.FOLLOW_DIST_MIN;
+    let targetOffsetY = -Math.sin(player.angle) * CONFIG.YUME.FOLLOW_DIST_MIN;
+    let targetX = player.x + targetOffsetX;
+    let targetY = player.y + targetOffsetY;
+
+    // もし背後が壁の中にめり込んでいる場合は、プレイヤー本体の位置を目標にする
+    if (tileMap.isSolid(targetX, targetY, this.radius)) {
+      targetX = player.x;
+      targetY = player.y;
+    }
 
     const distToTarget = Math.hypot(targetX - this.x, targetY - this.y);
 
     if (distToTarget > 18) {
       const moveAngle = Math.atan2(targetY - this.y, targetX - this.x);
-      const moveSpeed = distToPlayer > CONFIG.YUME.FOLLOW_DIST_MAX ? this.speed * 1.35 : this.speed;
+      const moveSpeed = distToPlayer > CONFIG.YUME.FOLLOW_DIST_MAX ? this.speed * 1.4 : this.speed;
       const nx = this.x + Math.cos(moveAngle) * moveSpeed * dt;
       const ny = this.y + Math.sin(moveAngle) * moveSpeed * dt;
 
